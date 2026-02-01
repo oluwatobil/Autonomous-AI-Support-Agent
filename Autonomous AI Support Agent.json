@@ -1,0 +1,256 @@
+{
+  "name": "Customer Service",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9dcbe21c-dd9b-41c6-9ab4-1f2b560252f9",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "V7b2zYn7Gz4YzZ3Z",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.snippet }}",
+        "options": {
+          "systemMessage": "You are a helpful, professional virtual custoemr service agent. Your job is to assist users ny answering their questions using the provided knowledge base. The knowledge base is in the form of an FAQ. You will find it on the Google Sheet tool, always base your answers on that. If the answer isn't available on the google sheet, say that you are escalating the complaint to a specialist and you would revert in 24 hours. \n\nGuidelines\nClear, friendly and concise tone. \nFormat your answer for an email, so start with greetings, thank them for reaching out before you respond\n\nExample 1\nQuestion: I am unable to login with my password what do I do\n\nResponse :\nHi,\n\nThank you for reaching out\n\nIn order to reset your password, you can use the forgot password option.\n\nHave a wonderful day"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a64ca4fe-94e0-4c98-a4a0-b5c3d0ef1247",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "ce16f29c-b984-41d1-ad0e-46b300f13e5d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ZsRUubS6grn1gW9T",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1K44bXTsJ20S5REu9ae92euPBE72R9ca8NGVoQmA4paE",
+          "mode": "list",
+          "cachedResultName": "FAQ Knowledge Base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K44bXTsJ20S5REu9ae92euPBE72R9ca8NGVoQmA4paE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1610409964,
+          "mode": "list",
+          "cachedResultName": "Customer Dashboard Technical FAQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K44bXTsJ20S5REu9ae92euPBE72R9ca8NGVoQmA4paE/edit#gid=1610409964"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        208
+      ],
+      "id": "8818ace5-2e2e-46ce-8fc8-e88969f618d4",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YMHo3a4XpZxk0ldv",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.threadId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "14767956-b080-46d6-aa5e-360d86b3cdf6",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.threadId }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "senderName": "Customer Service"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "02363d50-59a8-4c47-a22d-e1f9a86fa00e",
+      "name": "Reply to a message",
+      "webhookId": "b4c48791-7c6c-4074-8f0a-3215f97b7852",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "V7b2zYn7Gz4YzZ3Z",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "19c1a0cbf915ef73",
+          "threadId": "19c1a0cbf915ef73",
+          "snippet": "Technical Issue with Customer Dashboard",
+          "payload": {
+            "mimeType": "multipart/alternative"
+          },
+          "sizeEstimate": 7111,
+          "historyId": "58093",
+          "internalDate": "1769963557000",
+          "labels": [
+            {
+              "id": "INBOX",
+              "name": "INBOX"
+            },
+            {
+              "id": "IMPORTANT",
+              "name": "IMPORTANT"
+            },
+            {
+              "id": "CATEGORY_PERSONAL",
+              "name": "CATEGORY_PERSONAL"
+            },
+            {
+              "id": "UNREAD",
+              "name": "UNREAD"
+            }
+          ],
+          "From": "Oluwatobiloba Dada <dadaoluwatobiloba235@gmail.com>",
+          "Subject": "Test",
+          "To": "dadaoluwatobiloba03@gmail.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "c2cd81f3-1bb8-4057-bb4b-30ce6b8aeb3c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "840c6cb49638919a26e37c1002ad3a9c85b1faba8f70bce1e29b8fca3345f910"
+  },
+  "id": "3u43gsEafxLslo7g4rKzR",
+  "tags": []
+}
